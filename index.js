@@ -23,17 +23,16 @@ app.get('/supermercado', async (req, res) => {
         return
     }
     const db = client.db('sample_mflix')
-    const supermercado = await db.collection('supermercado').find().toArray()
+    const supermercado = await db
+    .collection('supermercado')
+    .find()
+    .toArray()
     console.log(supermercado)
 
     await disconnectFromMongoDB()
 
     res.json(supermercado)
 })
-
-//app.get("/hola", (req, res) => {
-//    res.json("En construccion")
-//})
 
 
 //OBTENER UN PRODUCTO POR SU CODIGO
@@ -45,7 +44,9 @@ app.get('/supermercado/codigo/:codigo', async (req, res) => {
         return
     }
     const db = client.db('sample_mflix')
-    const producto = await db.collection('supermercado').findOne({ codigo: productoCodigo})
+    const producto = await db
+    .collection('supermercado')
+    .findOne({ codigo: productoCodigo})
     console.log(producto)
 
     await disconnectFromMongoDB()
@@ -53,24 +54,6 @@ app.get('/supermercado/codigo/:codigo', async (req, res) => {
     !producto ? res.status(404).send("No existe un producto con ese código") : res.json(producto)
 })
 
-//FILTRAR PRODUCTOS
-
-//app.get('/supermercado/nombre/:nombre', async (req, res) => {
-    //const productoNombre = req.params.nombre.trim().toLowerCase() 
-    //console.log(productoNombre)
-    //const client = await connectToMongoDB()
-    //if(!client){
-    //    res.status(500).send("Error: no existe cliente")
-    //    return
-    //}
-    //const db = client.db('sample_mflix')
-    //const productosFiltrados = await db.collection('supermercado').findOne({nombre : productoNombre})
-    //console.log(productosFiltrados)
-
-    //await disconnectFromMongoDB()
-
-    //!productosFiltrados ? res.status(404).send("No existe un producto con ese nombre") : res.json(productosFiltrados)
-//})
 
 //FILTRAR PRODUCTOS SEGUN UN VALOR PARCIAL
 
@@ -83,7 +66,10 @@ app.get('/supermercado/nombre/:nombre', async (req, res) => {
         return
     }
     const db = client.db('sample_mflix')
-    const productosFiltrados = await db.collection('supermercado').find({nombre: /^Ma/ }).toArray()
+    const productosFiltrados = await db
+    .collection('supermercado')
+    .find({nombre: { $regex: productoNombre, $options: "i"} })
+    .toArray()
     console.log(productosFiltrados)
 
     await disconnectFromMongoDB()
@@ -91,10 +77,13 @@ app.get('/supermercado/nombre/:nombre', async (req, res) => {
     !productosFiltrados ? res.status(404).send("No existe un producto con ese nombre") : res.json(productosFiltrados)
 })
 
+
 //AGREGAR UN NUEVO PRODUCTO
 app.post('/supermercado', async (req, res) => {
     const nuevoProducto = req.body
     
+    nuevoProducto.codigo = Math.floor(Math.random() * 10000)
+
     if(Object.keys(nuevoProducto).length === 0) {
         res.status(422).send("Error en el formato de los datos")
     }
@@ -115,6 +104,7 @@ app.post('/supermercado', async (req, res) => {
 
     //res.send("OK")
 })
+
 
 //MODIFICAR EL PRECIO DE UN PRODUCTO
 app.patch('/supermercado/codigo/:codigo', async (req, res) => {
@@ -143,6 +133,7 @@ app.patch('/supermercado/codigo/:codigo', async (req, res) => {
 
     //res.send("OK")
 })
+
 
 //ELIMINAR UN PRODUCTO
 app.delete('/supermercado/codigo/:codigo', async (req, res) => {
@@ -178,6 +169,7 @@ app.delete('/supermercado/codigo/:codigo', async (req, res) => {
 
 
 const PORT = process.env.PORT || 3000
+
 
 //Middleware para cuando ninguna ruta responde a la petición
 app.use((req, res, next) => {
